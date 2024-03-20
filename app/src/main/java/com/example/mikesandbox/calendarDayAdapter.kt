@@ -1,17 +1,23 @@
 package com.example.mikesandbox
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 
 class calendarDayAdapter(private val context: Context, private val dataSet: ArrayList<DayModel>, private var selectedDay:Int? = null) : RecyclerView.Adapter<calendarDayAdapter.ViewHolder>() {
 
+    private var publicLastSelectedHolder:ViewHolder? = null;
+
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textView: TextView = view.findViewById(R.id.calendar_text_holder)
+        val dayContainer: LinearLayoutCompat = view.findViewById(R.id.calendar_day_container)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -19,6 +25,8 @@ class calendarDayAdapter(private val context: Context, private val dataSet: Arra
         return ViewHolder(view)
     }
 
+    //Less pression on the aspecto related to the override of the animation
+    @SuppressLint("ResourceType")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         val actualItem = dataSet[position]
@@ -27,10 +35,6 @@ class calendarDayAdapter(private val context: Context, private val dataSet: Arra
 
 
         when(actualItem.status){
-            DayModel.Status_Selected -> {
-                holder.textView.setBackgroundResource(R.drawable.calendar_day_selected_state)
-                holder.textView.setTextColor(ContextCompat.getColor(context, R.color.pink_ef))
-            }
 
             DayModel.Status_Disabled -> {
                 holder.textView.isEnabled = false
@@ -50,37 +54,35 @@ class calendarDayAdapter(private val context: Context, private val dataSet: Arra
             }
 
             else -> {
-                holder.textView.setBackgroundResource(R.drawable.calendary_day_default_state)
-                holder.textView.setTextColor(ContextCompat.getColor(context, R.color.white))
+                holder.textView.setBackgroundResource(R.drawable.background_calendar_day)
+                holder.textView.setTextColor(ContextCompat.getColorStateList(context, R.drawable.fontcolor_calendar_day))
             }
         }
 
-        holder.textView.setOnClickListener {
-
+        holder.dayContainer.setOnClickListener {
             if(actualItem.status == DayModel.Status_Active){
-                executeSelection(position)
+                executeSelection(position,holder)
             }
         }
     }
 
-    private fun executeSelection(selectedItem:Int){
+    private fun executeSelection(selectedItem:Int ,holder: ViewHolder){
 
         if(selectedDay != null && selectedItem != selectedDay){
-            selectedOperation(selectedDay!!, UNSELECT)
+            selectedOperation(UNSELECT,holder)
         }
-        selectedOperation(selectedItem, SELECT)
+        selectedOperation(SELECT,holder)
 
+        publicLastSelectedHolder = holder
         selectedDay = selectedItem
     }
 
-    private fun selectedOperation(indexOfDay : Int, typeOperation : Int) {
+    private fun selectedOperation(typeOperation : Int, holder: ViewHolder) {
         if(typeOperation == SELECT){
-            dataSet[indexOfDay].status = DayModel.Status_Selected
+            holder.textView.isSelected = true
         }else{
-            dataSet[indexOfDay].status = DayModel.Status_Active
+            publicLastSelectedHolder!!.textView.isSelected = false
         }
-
-        notifyItemChanged(indexOfDay)
     }
 
     override fun getItemCount() = dataSet.size

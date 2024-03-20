@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_enabled="false" android:drawable="@drawable/calendar_day_disabled_state" />
     <item android:state_selected="true" android:drawable="@drawable/calendar_day_selected_state" />
     <item android:drawable="@drawable/calendary_day_default_state"/>
 </selector>

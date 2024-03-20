@@ -1,16 +1,6 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Color cuando esta deshabilitado -->
-    <item android:state_enabled="false" android:color="@color/pink_ef"/>
-
     <!-- Color cuando esta Seleccionado -->
     <item android:state_selected="true" android:color="@color/pink_ef"/>
-
-    <!-- Color cuando la fecha ya ha acurrido -->
-    <item android:state_hovered="true" android:color="@color/disabledPrimary"/>
-
-    <!-- Color siguiente mes -->
-    <item android:state_last="false" android:color="@color/pressTransWhite"/>
-
     <!-- Default color -->
     <item android:color="#FFFFFF"/>
 </selector>

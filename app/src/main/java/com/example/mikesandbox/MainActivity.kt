@@ -3,6 +3,8 @@ package com.example.mikesandbox
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.PagerSnapHelper
 import com.example.mikesandbox.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -30,28 +32,14 @@ class MainActivity : AppCompatActivity() {
         modData.add(DayModel("1",DayModel.Status_Next))
         modData.add(DayModel("2",DayModel.Status_Next))
         modData.add(DayModel("3",DayModel.Status_Next))
+        val adapter = CalendarMonthAdapter(this,"Marzo","2023",3,modData)
 
-        val spanCount = 7 // número de columnas en el grid
-        val spacingH = 14// espaciado entre elementos en píxeles
-        val spacingV = 2 // espaciado entre elementos en píxeles
-        val includeEdge = true // incluir espaciado en los bordes del grid
-
-
-
-
-        binding.myRecyclerView.addItemDecoration(GridSpacingItemDecoration(this,spanCount,spacingH, spacingV, includeEdge))
-        binding.myRecyclerView.layoutManager = GridLayoutManager(this, spanCount)
-        binding.myRecyclerView.isNestedScrollingEnabled = false
         //Snapper for the monthsAdapter
-        //val pagerSnapHelper = PagerSnapHelper()
-        //pagerSnapHelper.attachToRecyclerView(binding.myRecyclerView)
+        val pagerSnapHelper = PagerSnapHelper()
+        pagerSnapHelper.attachToRecyclerView(binding.myRecyclerView)
 
-        //val orderedLinearLayoutManager = LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false)
-        //binding.myRecyclerView.layoutManager = orderedLinearLayoutManager
-
-        val adapter = calendarDayAdapter(this,modData)
+        binding.myRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         binding.myRecyclerView.adapter = adapter
-
 
     }
 }

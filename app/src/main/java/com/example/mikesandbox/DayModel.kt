@@ -1,8 +1,10 @@
 package com.example.mikesandbox
 
-class DayModel(dayConstructor:String,statusConstructor: Int = 0) {
+class DayModel(dayConstructor:String,monthConstructo:String,statusConstructor: Int = 0) {
     var day: String = ""
+    var month: String = ""
     var status: Int = 0
+    var id:Long = 0
 
     init {
         day = dayConstructor

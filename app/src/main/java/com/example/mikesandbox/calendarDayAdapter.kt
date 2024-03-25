@@ -11,13 +11,20 @@ import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 
-class calendarDayAdapter(private val context: Context, private val dataSet: ArrayList<DayModel>, private var selectedDay:Int? = null) : RecyclerView.Adapter<calendarDayAdapter.ViewHolder>() {
+class calendarDayAdapter(private val context: Context, private val dataSet: ArrayList<DayModel>, private var selectedDay:Int? = null,private val listener: Listener) : RecyclerView.Adapter<calendarDayAdapter.ViewHolder>() {
 
     private var publicLastSelectedHolder:ViewHolder? = null;
+    interface Listener {
+        fun dateSelected(item:DayModel,index:Int)
+    }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textView: TextView = view.findViewById(R.id.calendar_text_holder)
         val dayContainer: LinearLayoutCompat = view.findViewById(R.id.calendar_day_container)
+    }
+
+    override fun getItemId(position: Int): Long {
+        return super.getItemId(position)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -25,14 +32,13 @@ class calendarDayAdapter(private val context: Context, private val dataSet: Arra
         return ViewHolder(view)
     }
 
-    //Less pression on the aspecto related to the override of the animation
+    //Less pression on the aspect related to the override of the animation
     @SuppressLint("ResourceType")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         val actualItem = dataSet[position]
 
         holder.textView.text = actualItem.day
-
 
         when(actualItem.status){
 
@@ -61,24 +67,26 @@ class calendarDayAdapter(private val context: Context, private val dataSet: Arra
 
         holder.dayContainer.setOnClickListener {
             if(actualItem.status == DayModel.Status_Active){
-                executeSelection(position,holder)
+                executeSelection(position,holder,actualItem)
             }
         }
+
     }
 
-    private fun executeSelection(selectedItem:Int ,holder: ViewHolder){
+    private fun executeSelection(selectedItem:Int ,holder: ViewHolder,actualItem: DayModel){
 
         if(selectedDay != null && selectedItem != selectedDay){
-            selectedOperation(UNSELECT,holder)
+            selectedOperation(UNSELECT,holder,actualItem)
         }
-        selectedOperation(SELECT,holder)
+        selectedOperation(SELECT,holder,actualItem)
 
         publicLastSelectedHolder = holder
         selectedDay = selectedItem
     }
 
-    private fun selectedOperation(typeOperation : Int, holder: ViewHolder) {
+    private fun selectedOperation(typeOperation : Int, holder: ViewHolder,actualItem:DayModel) {
         if(typeOperation == SELECT){
+            listener.dateSelected(actualItem,0)
             holder.textView.isSelected = true
         }else{
             publicLastSelectedHolder!!.textView.isSelected = false

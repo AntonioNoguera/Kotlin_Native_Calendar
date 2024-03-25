@@ -9,10 +9,12 @@ class CalendarValidator(private var dateReceived: CalendarHelper) {
         val headers = arrayListOf<String>("dom","lun","mar","mier","jue","vie","sab")
 
         for(head in headers){
-            monthModeled.add(DayModel(head, dateReceived.getMonthName()))
+            monthModeled.add(DayModel(head, dateReceived.getMonthName(),DayModel.Status_Next))
         }
 
-        val emptyslots = 12
+        for (i in 1 .. dateReceived.getDummySpaces()){
+            monthModeled.add(DayModel(" ",dateReceived.getMonthName(),DayModel.Status_Passed))
+        }
 
         for (i in 1 .. dateReceived.getNumberOfDays()){
             if(i<dateReceived.getDate().dayOfMonth){

@@ -10,7 +10,7 @@ import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class CalendarMonthAdapter(private val context: Context, private val month:String, private val year:String, private val monthSize:Int,private val dataset: ArrayList<DayModel>,private val listenerMonth:Listener): RecyclerView.Adapter<CalendarMonthAdapter.ViewHolder>() {
+class CalendarMonthAdapter(private val context: Context, private val monthSize:Int,private val dataset: ArrayList<DayModel>,private val listenerMonth:Listener): RecyclerView.Adapter<CalendarMonthAdapter.ViewHolder>() {
 
     val publicStub = arrayListOf<String>("Enero","Febrero","Marzo")
     val dataSeted = arrayListOf<DayModel>()
@@ -40,7 +40,7 @@ class CalendarMonthAdapter(private val context: Context, private val month:Strin
         val itemMonth = publicStub[position]
         val startTime = System.nanoTime()
 
-        holder.monthText.text = itemMonth
+        holder.monthText.text = dataset[0].month
         holder.yearText.text = "2024"
 
         val spanCount = 7 // número de columnas en el grid

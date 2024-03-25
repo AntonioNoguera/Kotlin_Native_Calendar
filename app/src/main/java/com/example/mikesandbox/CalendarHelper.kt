@@ -1,14 +1,13 @@
 package com.example.mikesandbox
 
-import android.os.Build
-import androidx.annotation.RequiresApi
+import android.util.Log
 import java.time.*
 
 object CalendarHelper{
     val DayArray = arrayListOf("*","Lunes","Martes","Mier","Jueves","Viernes","Sabado","Domingo")
     val MonthArray = arrayListOf("*","Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre")
 
-    private var date:LocalDate? = null
+    private var date:LocalDate = LocalDate.of(2010,1,11)
 
     fun setDate(year:LocalDate){
         this.date = year
@@ -23,15 +22,19 @@ object CalendarHelper{
     }
 
     fun getMonthName():String{
-        return DayArray[this.date!!.monthValue]
+
+        return MonthArray[this.date!!.monthValue]
     }
 
     fun getDayName():String{
         return MonthArray[this.date!!.dayOfYear]
     }
 
-    fun getDummySpaces():Int{
-        return 2
+    fun getDummySpaces(): Int {
+        val firstOfTheMonth = LocalDate.of(date.year, date.monthValue, 1)
+        val day = firstOfTheMonth.dayOfWeek.value
+        Log.d("Object list",day.toString())
+        return day
     }
 
 }

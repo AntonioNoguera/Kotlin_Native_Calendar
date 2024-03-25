@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
@@ -27,17 +28,17 @@ class MainActivity : AppCompatActivity() {
 
         var validator : CalendarValidator = CalendarValidator(helper)
 
-        val today = LocalDate.now()
+        val today = LocalDate.of(2024,6,25)
         helper.setDate(today)
 
         var modData = validator.getModel()
 
-        val adapter = CalendarMonthAdapter(this,"Marzo","2023",12,modData, listenerMonth = object: CalendarMonthAdapter.Listener{
+        val adapter = CalendarMonthAdapter(this,12,modData, listenerMonth = object: CalendarMonthAdapter.Listener{
             override fun dateSelectedMonth(selectedDate: String) {
                 Log.d("Create Member",selectedDate)
+                Toast.makeText(this@MainActivity, selectedDate,Toast.LENGTH_SHORT).show()
             }
         })
-
 
         //Snapper for the monthsAdapter
         val pagerSnapHelper = PagerSnapHelper()

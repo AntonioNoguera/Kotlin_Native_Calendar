@@ -55,8 +55,8 @@ class calendarDayAdapter(private val context: Context, private val dataSet: Arra
             }
 
             DayModel.Status_Next -> {
-                holder.textView.setBackgroundResource(R.drawable.calendary_day_default_state)
-                holder.textView.setTextColor(ContextCompat.getColor(context, R.color.transWhite))
+                holder.textView.setBackgroundResource(R.drawable.background_calendar_day)
+                holder.textView.setTextColor(ContextCompat.getColorStateList(context, R.drawable.fontcolor_calendar_day))
             }
 
             else -> {

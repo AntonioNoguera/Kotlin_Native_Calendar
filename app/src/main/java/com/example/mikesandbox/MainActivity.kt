@@ -21,9 +21,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val helper = CalendarHelper
-
         val validator = CalendarValidator(helper)
-
         val modData: ArrayList<ArrayList<DayModel>> = arrayListOf()
 
         //Debe de haber un endpoint que de la fecha y hora actual
@@ -42,10 +40,10 @@ class MainActivity : AppCompatActivity() {
             helper.nSetDate(todayModel)
             modData.add(validator.getModel())
 
-            todayModel = helper.nAddMonth(todayModel,2)
+            todayModel = helper.nAddMonth(todayModel)
         }
 
-        val adapter = CalendarMonthAdapter(this,modData.size,modData, listenerMonth = object: CalendarMonthAdapter.Listener{
+        val adapter = CalendarMonthAdapter(this, modData, listenerMonth = object: CalendarMonthAdapter.Listener{
             override fun dateSelectedMonth(selectedDate: String) {
                 Log.d("Create Member",selectedDate)
                 Toast.makeText(this@MainActivity, selectedDate,Toast.LENGTH_SHORT).show()

@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 class calendarDayAdapter(private val context: Context, private val dataSet: ArrayList<DayModel>, private var selectedDay:Int? = null,private val listener: Listener) : RecyclerView.Adapter<calendarDayAdapter.ViewHolder>() {
 
     interface Listener {
-        fun executeSelection(selectedItem:Int ,holder: ViewHolder,actualItem: DayModel)
+        fun executeSelection(holder: ViewHolder,actualItem: DayModel)
     }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -62,7 +62,7 @@ class calendarDayAdapter(private val context: Context, private val dataSet: Arra
 
         holder.dayContainer.setOnClickListener {
             if(actualItem.status == DayModel.Status_Active){
-                listener.executeSelection(position,holder,actualItem)
+                listener.executeSelection(holder,actualItem)
             }
         }
 

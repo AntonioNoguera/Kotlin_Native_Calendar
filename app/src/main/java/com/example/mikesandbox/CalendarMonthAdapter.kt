@@ -1,7 +1,6 @@
 package com.example.mikesandbox
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +8,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class CalendarMonthAdapter(private val context: Context, private val monthSize:Int,private val dataset: ArrayList<ArrayList<DayModel>>,private val listenerMonth:Listener): RecyclerView.Adapter<CalendarMonthAdapter.ViewHolder>() {
+class CalendarMonthAdapter(private val context: Context, private val dataset: ArrayList<ArrayList<DayModel>>,private val listenerMonth:Listener): RecyclerView.Adapter<CalendarMonthAdapter.ViewHolder>() {
+
     val MonthArray = arrayListOf("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre")
     private var publicLastSelectedHolder: calendarDayAdapter.ViewHolder? = null;
 
@@ -24,21 +24,18 @@ class CalendarMonthAdapter(private val context: Context, private val monthSize:I
     }
 
     override fun onCreateViewHolder( parent: ViewGroup, viewType: Int ): ViewHolder {
-
         val view = LayoutInflater.from(parent.context).inflate(R.layout.detailed_calendar_month, parent, false)
-        Log.d("Vista Recyclada","Created ViewHolder")
         return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: CalendarMonthAdapter.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val monthData = dataset[position]
         val itemMonth = MonthArray[monthData[0].month]
-
 
         // Hace referencia a la posicion del mes que se habia seleccionado previamente
         val monthPosition = 0
 
-        holder.monthText.text = itemMonth.toString()
+        holder.monthText.text = itemMonth
         holder.yearText.text = monthData[0].year.toString()
 
         // número de columnas en el grid
@@ -54,11 +51,10 @@ class CalendarMonthAdapter(private val context: Context, private val monthSize:I
            listener =  object: calendarDayAdapter.Listener {
 
                override fun executeSelection(
-                   selectedItem: Int,
                    holder: calendarDayAdapter.ViewHolder,
                    item: DayModel
                ) {
-                   executeDaySelection(selectedItem,holder,item)
+                   executeDaySelection(holder,item)
                }
 
             }
@@ -72,7 +68,7 @@ class CalendarMonthAdapter(private val context: Context, private val monthSize:I
 
     private var selectedDay:DayModel? = null
 
-    private fun executeDaySelection(selectedItem:Int, holder: calendarDayAdapter.ViewHolder, actualItem: DayModel){
+    private fun executeDaySelection(holder: calendarDayAdapter.ViewHolder, actualItem: DayModel){
 
         if(selectedDay != null){
             if(selectedDay!!.month != actualItem.month || actualItem.day != selectedDay!!.day){

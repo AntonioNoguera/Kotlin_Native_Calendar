@@ -1,9 +1,9 @@
 package com.example.mikesandbox
 
-class DayModel(dayConstructor: String, monthConstructor:String, yearConstructor: String, statusConstructor: Int = 0) {
+class DayModel(dayConstructor: String, monthConstructor:Int, yearConstructor: Int, statusConstructor: Int = 0) {
     var day: String = ""
-    var month: String = ""
-    var year:String = ""
+    var month: Int = 0
+    var year: Int = 0
     var status: Int = 0
 
     init {

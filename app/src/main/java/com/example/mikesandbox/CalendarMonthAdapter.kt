@@ -10,11 +10,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 class CalendarMonthAdapter(private val context: Context, private val monthSize:Int,private val dataset: ArrayList<ArrayList<DayModel>>,private val listenerMonth:Listener): RecyclerView.Adapter<CalendarMonthAdapter.ViewHolder>() {
-
-    val publicStub = arrayListOf<String>("Enero","Febrero","Marzo")
-
-    val dataSeted = arrayListOf<DayModel>()
-
+    val MonthArray = arrayListOf("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre")
     private var publicLastSelectedHolder: calendarDayAdapter.ViewHolder? = null;
 
     interface Listener{
@@ -36,14 +32,14 @@ class CalendarMonthAdapter(private val context: Context, private val monthSize:I
 
     override fun onBindViewHolder(holder: CalendarMonthAdapter.ViewHolder, position: Int) {
         val monthData = dataset[position]
-        val itemMonth = monthData[0].month
+        val itemMonth = MonthArray[monthData[0].month]
 
 
         // Hace referencia a la posicion del mes que se habia seleccionado previamente
         val monthPosition = 0
 
-        holder.monthText.text = itemMonth
-        holder.yearText.text = monthData[0].year
+        holder.monthText.text = itemMonth.toString()
+        holder.yearText.text = monthData[0].year.toString()
 
         // número de columnas en el grid
         val spanCount = 7

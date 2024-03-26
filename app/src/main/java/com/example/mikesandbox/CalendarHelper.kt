@@ -2,43 +2,50 @@ package com.example.mikesandbox
 
 import android.util.Log
 import java.time.*
+import java.util.Calendar
 
 object CalendarHelper{
     val DayArray = arrayListOf("*","Lunes","Martes","Mier","Jueves","Viernes","Sabado","Domingo")
-    val MonthArray = arrayListOf("*","Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre")
 
-    private var date:LocalDate = LocalDate.of(2010,1,11)
+    private var nativeDate: DayModel = DayModel("12",10,2002)
 
-    fun setDate(year:LocalDate){
-        this.date = year
+    //Native Implementation
+    fun nSetDate(receivedDate:DayModel){
+        this.nativeDate = receivedDate
     }
 
-    fun getDate():LocalDate{
-        return this.date!!
+    fun nGetDate():DayModel{
+        return this.nativeDate
     }
 
-    fun getNumberOfDays():Int{
-        return this.date!!.lengthOfMonth()
+    fun nGetNumberOfDays():Int{
+        val calendario = Calendar.getInstance()
+        calendario.set(Calendar.YEAR, this.nativeDate.year)
+        calendario.set(Calendar.MONTH,this.nativeDate.month)
+        Log.d("Called Days", "Year: ${this.nativeDate.year} / Month: ${this.nativeDate.month}  Dias : ${calendario.getActualMaximum(Calendar.DAY_OF_MONTH)}")
+        return calendario.getActualMaximum(Calendar.DAY_OF_MONTH)
     }
 
-    fun getMonthName():String{
-
-        return MonthArray[this.date!!.monthValue]
+    fun nGetMonth():Int {
+        return this.nativeDate.month
     }
 
-    fun getDayName():String{
-        return MonthArray[this.date!!.dayOfYear]
+    fun nGetYear():Int{
+        return this.nativeDate.year.toInt()
     }
 
-    fun getYear():String{
-        return this.date.year.toString()
+    fun nAddMonth(dayReceived:DayModel, i: Int):DayModel{
+        return if(dayReceived.month == 11){
+            DayModel(dayReceived.day,0,dayReceived.year+1)
+        }else{
+            DayModel(dayReceived.day,dayReceived.month+1,dayReceived.year)
+        }
     }
 
-    fun getDummySpaces(): Int {
-        val firstOfTheMonth = LocalDate.of(date.year, date.monthValue, 1)
-        val day = firstOfTheMonth.dayOfWeek.value
-        Log.d("Object list",day.toString())
-        return day
+    fun nGetDummySpaces(): Int {
+        val calendario = Calendar.getInstance()
+        calendario.set(this.nativeDate.year,this.nativeDate.month,1)
+        Log.d("Date ver: ",calendario.get(Calendar.DAY_OF_WEEK).toString())
+        return calendario.get(Calendar.DAY_OF_WEEK)-1
     }
-
 }

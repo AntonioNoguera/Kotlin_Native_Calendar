@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.PagerSnapHelper
 
 import com.example.mikesandbox.databinding.ActivityMainBinding
 import java.time.LocalDate
+import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -25,15 +26,23 @@ class MainActivity : AppCompatActivity() {
 
         val modData: ArrayList<ArrayList<DayModel>> = arrayListOf()
 
-        val thisDay = LocalDate.now()
+        //Debe de haber un endpoint que de la fecha y hora actual
+        //Implementacion temporal
+        val calen = Calendar.getInstance()
+        var todayModel = DayModel(
+                                    dayConstructor = calen.get(Calendar.DAY_OF_MONTH).toString(),
+                                    monthConstructor = calen.get(Calendar.MONTH),
+                                    yearConstructor = calen.get(Calendar.YEAR)
+                                )
+
+        //The iterator that makes the month adapter
         for(i in 0..20){
-            val date = if (i==0) thisDay.dayOfMonth else 1
-            val newMonth = thisDay.plusMonths(i.toLong())
-            val today = LocalDate.of(newMonth.year,newMonth.monthValue, date)
-            helper.setDate(today)
+            todayModel.day = if (i==0) todayModel.day else 1.toString()
+
+            helper.nSetDate(todayModel)
             modData.add(validator.getModel())
 
-            Log.d("Generated Month Verification :","Month data size ${modData.size.toString()}")
+            todayModel = helper.nAddMonth(todayModel,2)
         }
 
         val adapter = CalendarMonthAdapter(this,modData.size,modData, listenerMonth = object: CalendarMonthAdapter.Listener{

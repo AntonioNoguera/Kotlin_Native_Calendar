@@ -4,15 +4,12 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.recyclerview.widget.GridLayoutManager
+
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
-import androidx.recyclerview.widget.RecyclerView
+
 import com.example.mikesandbox.databinding.ActivityMainBinding
 import java.time.LocalDate
-import java.util.Calendar
-
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -24,16 +21,22 @@ class MainActivity : AppCompatActivity() {
 
         val helper = CalendarHelper
 
+        val validator = CalendarValidator(helper)
 
+        val modData: ArrayList<ArrayList<DayModel>> = arrayListOf()
 
-        var validator : CalendarValidator = CalendarValidator(helper)
+        val thisDay = LocalDate.now()
+        for(i in 0..20){
+            val date = if (i==0) thisDay.dayOfMonth else 1
+            val newMonth = thisDay.plusMonths(i.toLong())
+            val today = LocalDate.of(newMonth.year,newMonth.monthValue, date)
+            helper.setDate(today)
+            modData.add(validator.getModel())
 
-        val today = LocalDate.of(2024,6,25)
-        helper.setDate(today)
+            Log.d("Generated Month Verification :","Month data size ${modData.size.toString()}")
+        }
 
-        var modData = validator.getModel()
-
-        val adapter = CalendarMonthAdapter(this,12,modData, listenerMonth = object: CalendarMonthAdapter.Listener{
+        val adapter = CalendarMonthAdapter(this,modData.size,modData, listenerMonth = object: CalendarMonthAdapter.Listener{
             override fun dateSelectedMonth(selectedDate: String) {
                 Log.d("Create Member",selectedDate)
                 Toast.makeText(this@MainActivity, selectedDate,Toast.LENGTH_SHORT).show()
@@ -44,7 +47,6 @@ class MainActivity : AppCompatActivity() {
         val pagerSnapHelper = PagerSnapHelper()
         pagerSnapHelper.attachToRecyclerView(binding.myRecyclerView)
 
-
         val linearLayoutManager = LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false)
         binding.myRecyclerView.layoutManager = linearLayoutManager
 
@@ -53,7 +55,6 @@ class MainActivity : AppCompatActivity() {
             isItemPrefetchEnabled = true
         }
 
-        // Crear y establecer el adaptador para el RecyclerView
         binding.myRecyclerView.adapter = adapter
     }
 }

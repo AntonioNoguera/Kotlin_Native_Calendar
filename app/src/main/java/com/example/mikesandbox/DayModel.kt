@@ -1,14 +1,16 @@
 package com.example.mikesandbox
 
-class DayModel(dayConstructor:String,monthConstructor:String,statusConstructor: Int = 0) {
+class DayModel(dayConstructor: String, monthConstructor:String, yearConstructor: String, statusConstructor: Int = 0) {
     var day: String = ""
     var month: String = ""
+    var year:String = ""
     var status: Int = 0
 
     init {
         day = dayConstructor
-        status = statusConstructor
         month = monthConstructor
+        year = yearConstructor
+        status = statusConstructor
     }
 
     companion object {

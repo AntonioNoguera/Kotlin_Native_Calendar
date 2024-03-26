@@ -6,23 +6,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class CalendarMonthAdapter(private val context: Context, private val monthSize:Int,private val dataset: ArrayList<DayModel>,private val listenerMonth:Listener): RecyclerView.Adapter<CalendarMonthAdapter.ViewHolder>() {
+class CalendarMonthAdapter(private val context: Context, private val monthSize:Int,private val dataset: ArrayList<ArrayList<DayModel>>,private val listenerMonth:Listener): RecyclerView.Adapter<CalendarMonthAdapter.ViewHolder>() {
 
     val publicStub = arrayListOf<String>("Enero","Febrero","Marzo")
+
     val dataSeted = arrayListOf<DayModel>()
 
-    val selectedDay = ""
+    private var publicLastSelectedHolder: calendarDayAdapter.ViewHolder? = null;
 
     interface Listener{
         fun dateSelectedMonth(selectedDate :String)
     }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-
         val monthText: TextView = view.findViewById(R.id.month_text_view)
         val yearText: TextView = view.findViewById(R.id.day_text_view)
         val monthRV : RecyclerView = view.findViewById(R.id.month_rv)
@@ -36,14 +35,18 @@ class CalendarMonthAdapter(private val context: Context, private val monthSize:I
     }
 
     override fun onBindViewHolder(holder: CalendarMonthAdapter.ViewHolder, position: Int) {
+        val monthData = dataset[position]
+        val itemMonth = monthData[0].month
 
-        val itemMonth = publicStub[position]
-        val startTime = System.nanoTime()
 
-        holder.monthText.text = dataset[0].month
-        holder.yearText.text = "2024"
+        // Hace referencia a la posicion del mes que se habia seleccionado previamente
+        val monthPosition = 0
 
-        val spanCount = 7 // número de columnas en el grid
+        holder.monthText.text = itemMonth
+        holder.yearText.text = monthData[0].year
+
+        // número de columnas en el grid
+        val spanCount = 7
 
         holder.monthRV.layoutManager = object: GridLayoutManager(context, spanCount){
             override fun canScrollVertically(): Boolean {
@@ -51,31 +54,47 @@ class CalendarMonthAdapter(private val context: Context, private val monthSize:I
             }
         }
 
-        val adapter = calendarDayAdapter(context,dataset,
+        val adapter = calendarDayAdapter(context,dataset[position],
            listener =  object: calendarDayAdapter.Listener {
-               override fun dateSelected(item: DayModel, index: Int) {
-                   //Notificar al anterior mes que debe de deseleccionar
-                   val selected:String = item.day.toString() + itemMonth
-                   listenerMonth.dateSelectedMonth(selected)
+
+               override fun executeSelection(
+                   selectedItem: Int,
+                   holder: calendarDayAdapter.ViewHolder,
+                   item: DayModel
+               ) {
+                   executeDaySelection(selectedItem,holder,item)
                }
 
             }
         )
         holder.monthRV.adapter = adapter
-        val endTime = System.nanoTime()
-        Log.d("Vista Recyclada","onBindViewHolder $itemMonth ${(endTime - startTime) / 1_000_000}ms")
-
-    }
-
-    override fun onViewRecycled(holder: ViewHolder) {
-        Log.d("Vista Recyclada","HOLDER RECYCLED ${holder.monthText.text}")
-        super.onViewRecycled(holder)
-        // Código para manejar la vista reciclada, por ejemplo, limpiar recursos.
     }
 
     override fun getItemCount(): Int {
-        return monthSize
+        return dataset.size
     }
 
+    private var selectedDay:DayModel? = null
+
+    private fun executeDaySelection(selectedItem:Int, holder: calendarDayAdapter.ViewHolder, actualItem: DayModel){
+
+        if(selectedDay != null){
+            if(selectedDay!!.month != actualItem.month || actualItem.day != selectedDay!!.day){
+                selectedOperation(calendarDayAdapter.UNSELECT,holder,actualItem)
+            }
+        }
+        selectedOperation(calendarDayAdapter.SELECT,holder,actualItem)
+
+        publicLastSelectedHolder = holder
+        selectedDay = DayModel(actualItem.day,actualItem.month,actualItem.year)
+    }
+
+    private fun selectedOperation(typeOperation : Int, holder: calendarDayAdapter.ViewHolder, actualItem:DayModel) {
+        if(typeOperation == calendarDayAdapter.SELECT){
+            holder.textView.isSelected = true
+        }else{
+            publicLastSelectedHolder!!.textView.isSelected = false
+        }
+    }
 
 }

@@ -30,6 +30,10 @@ object CalendarHelper{
         return MonthArray[this.date!!.dayOfYear]
     }
 
+    fun getYear():String{
+        return this.date.year.toString()
+    }
+
     fun getDummySpaces(): Int {
         val firstOfTheMonth = LocalDate.of(date.year, date.monthValue, 1)
         val day = firstOfTheMonth.dayOfWeek.value

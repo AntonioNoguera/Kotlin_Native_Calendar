@@ -24,6 +24,8 @@ class MainActivity : AppCompatActivity() {
         val validator = CalendarValidator(helper)
         val modData: ArrayList<ArrayList<DayModel>> = arrayListOf()
 
+        val mockDays = arrayListOf(14,24)
+
         //Debe de haber un endpoint que de la fecha y hora actual
         //Implementacion temporal
         val calen = Calendar.getInstance()
@@ -38,6 +40,8 @@ class MainActivity : AppCompatActivity() {
             todayModel.day = if (i==0) todayModel.day else 1.toString()
 
             helper.nSetDate(todayModel)
+            helper.nSetDisabledDates(mockDays)
+
             modData.add(validator.getModel())
 
             todayModel = helper.nAddMonth(todayModel)
@@ -45,7 +49,6 @@ class MainActivity : AppCompatActivity() {
 
         val adapter = CalendarMonthAdapter(this, modData, listenerMonth = object: CalendarMonthAdapter.Listener{
             override fun dateSelectedMonth(selectedDate: String) {
-                Log.d("Create Member",selectedDate)
                 Toast.makeText(this@MainActivity, selectedDate,Toast.LENGTH_SHORT).show()
             }
         })
@@ -58,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         binding.myRecyclerView.layoutManager = linearLayoutManager
 
         linearLayoutManager.apply {
-            initialPrefetchItemCount = 12
+            initialPrefetchItemCount = 5
             isItemPrefetchEnabled = true
         }
 

@@ -1,6 +1,7 @@
 package com.example.mikesandbox
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -41,11 +42,18 @@ class CalendarMonthAdapter(private val context: Context, private val dataset: Ar
         // número de columnas en el grid
         val spanCount = 7
 
-        holder.monthRV.layoutManager = object: GridLayoutManager(context, spanCount){
+        val holderLayout = object: GridLayoutManager(context, spanCount){
             override fun canScrollVertically(): Boolean {
                 return false
             }
         }
+
+        holderLayout.apply {
+            initialPrefetchItemCount = 45
+            isItemPrefetchEnabled = true
+        }
+
+        holder.monthRV.layoutManager = holderLayout
 
         val adapter = calendarDayAdapter(context,dataset[position],
            listener =  object: calendarDayAdapter.Listener {

@@ -49,4 +49,6 @@ dependencies {
 
     //Date Time for the Time Formating
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.3.2")
+
+    implementation ("com.facebook.shimmer:shimmer:0.5.0")
 }

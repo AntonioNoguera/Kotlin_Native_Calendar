@@ -1,6 +1,7 @@
 package com.example.mikesandbox
 
 import android.content.Context
+import android.opengl.Visibility
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -8,11 +9,14 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.facebook.shimmer.Shimmer
+import java.time.Month
 
-class CalendarMonthAdapter(private val context: Context, private val dataset: ArrayList<ArrayList<DayModel>>,private val listenerMonth:Listener): RecyclerView.Adapter<CalendarMonthAdapter.ViewHolder>() {
+class CalendarMonthAdapter(private val context: Context, private val dataset: ArrayList<MonthModel>,private val listenerMonth:Listener): RecyclerView.Adapter<CalendarMonthAdapter.ViewHolder>() {
 
     val MonthArray = arrayListOf("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre")
     private var publicLastSelectedHolder: calendarDayAdapter.ViewHolder? = null;
+    private var actualItem:Int = 0;
 
     interface Listener{
         fun dateSelectedMonth(selectedDate :String)
@@ -22,6 +26,7 @@ class CalendarMonthAdapter(private val context: Context, private val dataset: Ar
         val monthText: TextView = view.findViewById(R.id.month_text_view)
         val yearText: TextView = view.findViewById(R.id.day_text_view)
         val monthRV : RecyclerView = view.findViewById(R.id.month_rv)
+        val shimmerRV : View = view.findViewById(R.id.month_holder)
     }
 
     override fun onCreateViewHolder( parent: ViewGroup, viewType: Int ): ViewHolder {
@@ -31,13 +36,14 @@ class CalendarMonthAdapter(private val context: Context, private val dataset: Ar
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val monthData = dataset[position]
-        val itemMonth = MonthArray[monthData[0].month]
+        val itemMonth = MonthArray[monthData.month]
 
         // Hace referencia a la posicion del mes que se habia seleccionado previamente
         val monthPosition = 0
 
         holder.monthText.text = itemMonth
-        holder.yearText.text = monthData[0].year.toString()
+
+        holder.yearText.text = "2023"
 
         // número de columnas en el grid
         val spanCount = 7
@@ -48,30 +54,53 @@ class CalendarMonthAdapter(private val context: Context, private val dataset: Ar
             }
         }
 
+
+        if(monthData.isOnScreen){
+            holder.monthRV.visibility = View.VISIBLE
+            holder.shimmerRV.visibility = View.GONE
+        }else{
+            holder.monthRV.visibility = View.GONE
+            holder.shimmerRV.visibility = View.VISIBLE
+        }
+
         holderLayout.apply {
-            initialPrefetchItemCount = 45
+            //initialPrefetchItemCount = dataset.size
             isItemPrefetchEnabled = true
         }
 
         holder.monthRV.layoutManager = holderLayout
 
-        val adapter = calendarDayAdapter(context,dataset[position],
-           listener =  object: calendarDayAdapter.Listener {
+        val adapter = calendarDayAdapter(context,monthData.days,
+            listener =  object: calendarDayAdapter.Listener {
 
-               override fun executeSelection(
-                   holder: calendarDayAdapter.ViewHolder,
-                   item: DayModel
-               ) {
-                   executeDaySelection(holder,item)
-               }
+                override fun executeSelection( holder: calendarDayAdapter.ViewHolder, item: DayModel ) {
+                    executeDaySelection(holder,item)
+                }
+
+                override fun lastItemRendered() {
+                    holder.monthRV.visibility=View.VISIBLE
+                }
 
             }
         )
         holder.monthRV.adapter = adapter
     }
 
+
+
     override fun getItemCount(): Int {
         return dataset.size
+    }
+
+
+    fun memberVisible (position:Int){
+
+        dataset[actualItem].isOnScreen = false
+        notifyItemChanged(actualItem)
+
+        dataset[position].isOnScreen = true
+        actualItem = position
+        notifyItemChanged(actualItem)
     }
 
     private var selectedDay:DayModel? = null

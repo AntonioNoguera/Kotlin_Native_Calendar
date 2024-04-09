@@ -15,6 +15,7 @@ class calendarDayAdapter(private val context: Context, private val dataSet: Arra
 
     interface Listener {
         fun executeSelection(holder: ViewHolder,actualItem: DayModel)
+        fun lastItemRendered()
     }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -28,8 +29,12 @@ class calendarDayAdapter(private val context: Context, private val dataSet: Arra
     }
 
     //Less pression on the aspect related to the override of the animation
-    @SuppressLint("ResourceType")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+
+        if((dataSet.size-1)<=position){
+            listener.lastItemRendered()
+        }
+
 
         val actualItem = dataSet[position]
 
@@ -51,13 +56,13 @@ class calendarDayAdapter(private val context: Context, private val dataSet: Arra
 
             DayModel.Status_Next -> {
                 holder.textView.setBackgroundResource(R.drawable.background_calendar_day)
-                holder.textView.setTextColor(ContextCompat.getColorStateList(context, R.drawable.fontcolor_calendar_day))
+               // holder.textView.setTextColor(ContextCompat.getColorStateList(context, R.drawable.fontcolor_calendar_day))
             }
 
             else -> {
                 //for the headers
                 holder.textView.setBackgroundResource(R.drawable.background_calendar_day)
-                holder.textView.setTextColor(ContextCompat.getColorStateList(context, R.drawable.fontcolor_calendar_day))
+                //holder.textView.setTextColor(ContextCompat.getColorStateList(context, R.drawable.fontcolor_calendar_day))
             }
         }
 

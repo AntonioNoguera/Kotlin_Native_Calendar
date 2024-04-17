@@ -9,11 +9,10 @@ import android.widget.TextView
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mikesandbox.DayModel
 import com.example.mikesandbox.R
 import com.example.mikesandbox.chico.CalendarDateModel
 
-class calendarDayAdapter(private val context: Context, private val dataSet: ArrayList<CalendarDateModel>, private var selectedDay:Int? = null, private val listener: Listener) : RecyclerView.Adapter<calendarDayAdapter.ViewHolder>() {
+class CalendarDayAdapter(private val context: Context, private val dataSet: ArrayList<CalendarDateModel>, private var selectedDay:Int? = null, private val listener: Listener) : RecyclerView.Adapter<CalendarDayAdapter.ViewHolder>() {
 
     interface Listener {
         fun executeSelection(holder: ViewHolder, actualItem: CalendarDateModel)

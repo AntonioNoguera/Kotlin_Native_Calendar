@@ -7,14 +7,13 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mikesandbox.DayModel
 import com.example.mikesandbox.R
 import com.example.mikesandbox.chico.CalendarDateModel
 
 class CalendarMonthAdapter(private val context: Context, private val dataset: ArrayList<ArrayList<CalendarDateModel>>, private val listenerMonth: Listener): RecyclerView.Adapter<CalendarMonthAdapter.ViewHolder>() {
 
     val MonthArray = arrayListOf("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre")
-    private var publicLastSelectedHolder: calendarDayAdapter.ViewHolder? = null
+    private var publicLastSelectedHolder: CalendarDayAdapter.ViewHolder? = null
 
     interface Listener{
         fun dateSelectedMonth(selectedDate :String)
@@ -58,11 +57,11 @@ class CalendarMonthAdapter(private val context: Context, private val dataset: Ar
 
         holder.monthRV.layoutManager = holderLayout
 
-        val adapter = calendarDayAdapter(context, dataset[position],
-            listener = object: calendarDayAdapter.Listener {
+        val adapter = CalendarDayAdapter(context, dataset[position],
+            listener = object: CalendarDayAdapter.Listener {
 
                 override fun executeSelection(
-                    holder: calendarDayAdapter.ViewHolder,
+                    holder: CalendarDayAdapter.ViewHolder,
                     item: CalendarDateModel
                 ) {
                     executeDaySelection(holder,item)
@@ -80,21 +79,21 @@ class CalendarMonthAdapter(private val context: Context, private val dataset: Ar
 
     private var selectedDay: CalendarDateModel? = null
 
-    private fun executeDaySelection(holder: calendarDayAdapter.ViewHolder, actualItem: CalendarDateModel){
+    private fun executeDaySelection(holder: CalendarDayAdapter.ViewHolder, actualItem: CalendarDateModel){
 
         if(selectedDay != null){
             if(selectedDay!!.calendarMonthDate.toInt() - 1 != actualItem.calendarMonthDate.toInt() || actualItem.day != selectedDay!!.day){
-                selectedOperation(calendarDayAdapter.UNSELECT,holder,actualItem)
+                selectedOperation(CalendarDayAdapter.UNSELECT,holder,actualItem)
             }
         }
-        selectedOperation(calendarDayAdapter.SELECT,holder,actualItem)
+        selectedOperation(CalendarDayAdapter.SELECT,holder,actualItem)
 
         publicLastSelectedHolder = holder
         selectedDay = CalendarDateModel(actualItem.data)
     }
 
-    private fun selectedOperation(typeOperation : Int, holder: calendarDayAdapter.ViewHolder, actualItem: CalendarDateModel) {
-        if(typeOperation == calendarDayAdapter.SELECT){
+    private fun selectedOperation(typeOperation : Int, holder: CalendarDayAdapter.ViewHolder, actualItem: CalendarDateModel) {
+        if(typeOperation == CalendarDayAdapter.SELECT){
             holder.textView.isSelected = true
         }else{
             publicLastSelectedHolder!!.textView.isSelected = false

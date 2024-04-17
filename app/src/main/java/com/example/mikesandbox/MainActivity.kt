@@ -1,70 +1,129 @@
 package com.example.mikesandbox
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
+import android.os.Handler
+import android.os.Looper
+import android.util.DisplayMetrics
+import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.viewModels
 
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
+import androidx.viewpager2.widget.ViewPager2
+import com.example.mikesandbox.chico.CalendarDateModel
+import com.example.mikesandbox.chico.CalendarViewPagerAdapter
 
 import com.example.mikesandbox.databinding.ActivityMainBinding
-import java.time.LocalDate
+import com.example.mikesandbox.grande.CalendarMonthAdapter
 import java.util.Calendar
+import java.util.Locale
+import kotlin.math.ceil
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private val viewModel: CalendarViewModel by viewModels()
+    private lateinit var calendarViewPagerAdapter: CalendarViewPagerAdapter
+    private val helper = CalendarHelper
+    private val validator = CalendarValidator(helper)
+
+    private val calendar = Calendar.getInstance()
+    private var calendarDataList = mutableListOf<List<CalendarDateModel>>()
+
+
+
+    private val modData: ArrayList<ArrayList<CalendarDateModel>> = arrayListOf()
+    private val mockDays = arrayListOf(14, 24)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val helper = CalendarHelper
-        val validator = CalendarValidator(helper)
-        val modData: ArrayList<ArrayList<DayModel>> = arrayListOf()
 
-        val mockDays = arrayListOf(14,24)
+        setUpAdapter()
+        setUpCalendar(totalMonths = 20)
+        setupRecyclerView()
 
-        //Debe de haber un endpoint que de la fecha y hora actual
-        //Implementacion temporal
-        val calen = Calendar.getInstance()
-        var todayModel = DayModel(
-                                    dayConstructor = calen.get(Calendar.DAY_OF_MONTH).toString(),
-                                    monthConstructor = calen.get(Calendar.MONTH),
-                                    yearConstructor = calen.get(Calendar.YEAR)
-                                )
+    }
 
-        //The iterator that makes the month adapter
-        for(i in 0..20){
-            todayModel.day = if (i==0) todayModel.day else 1.toString()
+    /** Calendario Grande*/
+    private fun setupRecyclerView() {
+        binding.myRecyclerView.apply {
+            val adapter = CalendarMonthAdapter(this@MainActivity, modData, listenerMonth = object : CalendarMonthAdapter.Listener {
+                override fun dateSelectedMonth(selectedDate: String) {
+                    Toast.makeText(this@MainActivity, selectedDate, Toast.LENGTH_SHORT).show()
+                }
+            })
 
-            helper.nSetDate(todayModel)
-            helper.nSetDisabledDates(mockDays)
+            //Snapper for the monthsAdapter
+            PagerSnapHelper().attachToRecyclerView(this)
 
-            modData.add(validator.getModel())
-
-            todayModel = helper.nAddMonth(todayModel)
-        }
-
-        val adapter = CalendarMonthAdapter(this, modData, listenerMonth = object: CalendarMonthAdapter.Listener{
-            override fun dateSelectedMonth(selectedDate: String) {
-                Toast.makeText(this@MainActivity, selectedDate,Toast.LENGTH_SHORT).show()
+            val linearLayoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false).apply {
+                initialPrefetchItemCount = 5
+                isItemPrefetchEnabled = true
             }
+            layoutManager = linearLayoutManager
+            this.adapter = adapter
+        }
+    }
+
+    private fun monthlyCalendar(todayModel: CalendarDateModel, calendarMonth: Calendar, months: Int) {
+        //The iterator that makes the month adapter
+        val setDate = if (months == 0) todayModel.calendarDate.toInt() else 1
+        calendarMonth.set(Calendar.DAY_OF_MONTH, setDate)
+
+        helper.nSetDate(calendarMonth)
+        helper.nSetDisabledDates(mockDays)
+
+        modData.add(validator.getModel(calendarMonth))
+
+        helper.nAddMonth(calendarMonth)
+    }
+
+    /** Calendario Chico */
+    private fun setUpAdapter() {
+        val itemWidth = helper.calculateItemWidth(this@MainActivity)
+
+        // initialize CalendarViewPagerAdapter
+        calendarViewPagerAdapter = CalendarViewPagerAdapter(this@MainActivity, arrayListOf(), itemWidth, onClick = { a, b ->
+
         })
 
-        //Snapper for the monthsAdapter
-        val pagerSnapHelper = PagerSnapHelper()
-        pagerSnapHelper.attachToRecyclerView(binding.myRecyclerView)
-
-        val linearLayoutManager = LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false)
-        binding.myRecyclerView.layoutManager = linearLayoutManager
-
-        linearLayoutManager.apply {
-            initialPrefetchItemCount = 5
-            isItemPrefetchEnabled = true
+        binding.viewPagerCalendar.apply {
+            adapter = calendarViewPagerAdapter
+            offscreenPageLimit = 1
         }
 
-        binding.myRecyclerView.adapter = adapter
+    }
+
+    /**
+     * Function to setup calendar for every month
+     */
+    private fun setUpCalendar(totalMonths: Int) {
+        //Debe de haber un endpoint que de la fecha y hora actual
+        //Implementacion temporal
+        val currentMonthCalendar = calendar.clone() as Calendar
+        val calendarMonth = calendar.clone() as Calendar
+        val todayModel = CalendarDateModel(data = calendarMonth.time)
+        val calendarList: MutableList<List<CalendarDateModel>> = mutableListOf()
+
+        for (month in 0.. totalMonths) {
+            val firstDayOfWeek = if (month == 0) currentMonthCalendar.get(Calendar.DAY_OF_MONTH) else helper.getFirstDayOfNextMonth()
+            val maxDaysInMonth = currentMonthCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+            val weeksCount = helper.calculateWeeksCount(firstDayOfWeek, maxDaysInMonth)
+
+            // Calendario mensual
+            monthlyCalendar(todayModel, calendarMonth, month)
+
+            // Calendario semanal
+            calendarList += validator.generateCalendarList(currentMonthCalendar, maxDaysInMonth, weeksCount, firstDayOfWeek)
+            currentMonthCalendar.add(Calendar.MONTH, 1)
+        }
+
+        this.calendarDataList.addAll(calendarList)
+        calendarViewPagerAdapter.updateData(calendarList)
     }
 }

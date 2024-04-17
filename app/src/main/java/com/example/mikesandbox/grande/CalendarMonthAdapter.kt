@@ -7,13 +7,15 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.mikesandbox.MonthModel
 import com.example.mikesandbox.R
 import com.example.mikesandbox.chico.CalendarDateModel
 
-class CalendarMonthAdapter(private val context: Context, private val dataset: ArrayList<ArrayList<CalendarDateModel>>, private val listenerMonth: Listener): RecyclerView.Adapter<CalendarMonthAdapter.ViewHolder>() {
+class CalendarMonthAdapter(private val context: Context, private val dataset: ArrayList<MonthModel>, private val listenerMonth: Listener): RecyclerView.Adapter<CalendarMonthAdapter.ViewHolder>() {
 
-    val MonthArray = arrayListOf("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre")
     private var publicLastSelectedHolder: CalendarDayAdapter.ViewHolder? = null
+    private var actualItem:Int = 0;
+
 
     interface Listener{
         fun dateSelectedMonth(selectedDate :String)
@@ -23,6 +25,7 @@ class CalendarMonthAdapter(private val context: Context, private val dataset: Ar
         val monthText: TextView = view.findViewById(R.id.month_text_view)
         val yearText: TextView = view.findViewById(R.id.day_text_view)
         val monthRV : RecyclerView = view.findViewById(R.id.month_rv)
+        val shimmerRV : View = view.findViewById(R.id.month_holder)
     }
 
     override fun onCreateViewHolder( parent: ViewGroup, viewType: Int ): ViewHolder {
@@ -32,8 +35,8 @@ class CalendarMonthAdapter(private val context: Context, private val dataset: Ar
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val monthData = dataset[position]
-        val itemMonth = monthData[15].calendarMonth.replaceFirstChar { it.uppercase() }
-        val itemYear = monthData[15].calendarYear
+        val itemMonth = monthData.days[15].calendarMonth
+        val itemYear = monthData.days[15].calendarYear
 
         // Hace referencia a la posicion del mes que se habia seleccionado previamente
         val monthPosition = 0
@@ -50,22 +53,29 @@ class CalendarMonthAdapter(private val context: Context, private val dataset: Ar
             }
         }
 
+        if(monthData.isOnScreen){
+            holder.monthRV.visibility = View.VISIBLE
+            holder.shimmerRV.visibility = View.GONE
+        }else{
+            holder.monthRV.visibility = View.GONE
+            holder.shimmerRV.visibility = View.VISIBLE
+        }
+
         holderLayout.apply {
-            initialPrefetchItemCount = 45
             isItemPrefetchEnabled = true
         }
 
         holder.monthRV.layoutManager = holderLayout
 
-        val adapter = CalendarDayAdapter(context, dataset[position],
+        val adapter = CalendarDayAdapter(context, monthData.days,
             listener = object: CalendarDayAdapter.Listener {
-
-                override fun executeSelection(
-                    holder: CalendarDayAdapter.ViewHolder,
-                    item: CalendarDateModel
-                ) {
+                override fun executeSelection(holder: CalendarDayAdapter.ViewHolder, item: CalendarDateModel) {
                     executeDaySelection(holder,item)
                     println("/**${item.calendarMonth}")
+                }
+
+                override fun lastItemRendered() {
+                    holder.monthRV.visibility=View.VISIBLE
                 }
 
             }
@@ -75,6 +85,16 @@ class CalendarMonthAdapter(private val context: Context, private val dataset: Ar
 
     override fun getItemCount(): Int {
         return dataset.size
+    }
+
+    fun memberVisible (position:Int){
+
+        dataset[actualItem].isOnScreen = false
+        notifyItemChanged(actualItem)
+
+        dataset[position].isOnScreen = true
+        actualItem = position
+        notifyItemChanged(actualItem)
     }
 
     private var selectedDay: CalendarDateModel? = null

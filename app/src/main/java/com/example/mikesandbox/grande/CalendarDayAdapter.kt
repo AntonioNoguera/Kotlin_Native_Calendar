@@ -1,6 +1,5 @@
 package com.example.mikesandbox.grande
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +15,7 @@ class CalendarDayAdapter(private val context: Context, private val dataSet: Arra
 
     interface Listener {
         fun executeSelection(holder: ViewHolder, actualItem: CalendarDateModel)
+        fun lastItemRendered()
     }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -29,10 +29,12 @@ class CalendarDayAdapter(private val context: Context, private val dataSet: Arra
     }
 
     //Less pression on the aspect related to the override of the animation
-    @SuppressLint("ResourceType")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-
         val actualItem = dataSet[position]
+
+        if ((dataSet.size - 1) <= position) {
+            listener.lastItemRendered()
+        }
 
         holder.textView.text = if ( actualItem.data != null ) actualItem.calendarDate else actualItem.day
 
@@ -54,17 +56,13 @@ class CalendarDayAdapter(private val context: Context, private val dataSet: Arra
 
             CalendarDateModel.Status_Next -> {
                 holder.textView.setBackgroundResource(R.drawable.background_calendar_day)
-                holder.textView.setTextColor(ContextCompat.getColorStateList(context,
-                    R.drawable.fontcolor_calendar_day
-                ))
+                //holder.textView.setTextColor(ContextCompat.getColorStateList(context, R.drawable.fontcolor_calendar_day))
             }
 
             else -> {
                 //for the headers
                 holder.textView.setBackgroundResource(R.drawable.background_calendar_day)
-                holder.textView.setTextColor(ContextCompat.getColorStateList(context,
-                    R.drawable.fontcolor_calendar_day
-                ))
+                //holder.textView.setTextColor(ContextCompat.getColorStateList(context, R.drawable.fontcolor_calendar_day))
             }
         }
 

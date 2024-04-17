@@ -10,6 +10,7 @@ data class CalendarDateModel(
     var day: String = "",
     var today: Boolean = false,
     var isSelected: Boolean = true,
+    var isOnScreen: Boolean = false,
     var status: Int = 0
 ) {
 

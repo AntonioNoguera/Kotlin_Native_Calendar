@@ -1,26 +1,17 @@
 package com.example.mikesandbox
 
-import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.util.DisplayMetrics
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.viewModels
-
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
-import androidx.viewpager2.widget.ViewPager2
+import androidx.recyclerview.widget.RecyclerView
 import com.example.mikesandbox.chico.CalendarDateModel
 import com.example.mikesandbox.chico.CalendarViewPagerAdapter
-
 import com.example.mikesandbox.databinding.ActivityMainBinding
 import com.example.mikesandbox.grande.CalendarMonthAdapter
 import java.util.Calendar
-import java.util.Locale
-import kotlin.math.ceil
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -32,9 +23,7 @@ class MainActivity : AppCompatActivity() {
     private val calendar = Calendar.getInstance()
     private var calendarDataList = mutableListOf<List<CalendarDateModel>>()
 
-
-
-    private val modData: ArrayList<ArrayList<CalendarDateModel>> = arrayListOf()
+    private val calendarModel: ArrayList<MonthModel> = arrayListOf()
     private val mockDays = arrayListOf(14, 24)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +41,7 @@ class MainActivity : AppCompatActivity() {
     /** Calendario Grande*/
     private fun setupRecyclerView() {
         binding.myRecyclerView.apply {
-            val adapter = CalendarMonthAdapter(this@MainActivity, modData, listenerMonth = object : CalendarMonthAdapter.Listener {
+            val adapter = CalendarMonthAdapter(this@MainActivity, calendarModel, listenerMonth = object : CalendarMonthAdapter.Listener {
                 override fun dateSelectedMonth(selectedDate: String) {
                     Toast.makeText(this@MainActivity, selectedDate, Toast.LENGTH_SHORT).show()
                 }
@@ -67,18 +56,35 @@ class MainActivity : AppCompatActivity() {
             }
             layoutManager = linearLayoutManager
             this.adapter = adapter
+
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    super.onScrollStateChanged(recyclerView, newState)
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        val layoutManager = recyclerView.layoutManager
+                        val snapView = PagerSnapHelper().findSnapView(layoutManager)
+                        snapView?.let {
+                            val pos = recyclerView.getChildAdapterPosition(it)
+                            // pos es la posición del elemento que se muestra actualmente
+                            adapter.memberVisible(pos)
+                        }
+                    }
+                }
+            })
+
         }
     }
 
-    private fun monthlyCalendar(todayModel: CalendarDateModel, calendarMonth: Calendar, months: Int) {
+    private fun monthlyCalendar(todayModel: CalendarDateModel, calendarMonth: Calendar, month: Int) {
         //The iterator that makes the month adapter
-        val setDate = if (months == 0) todayModel.calendarDate.toInt() else 1
+        val setDate = if (month == 0) todayModel.calendarDate.toInt() else 1
         calendarMonth.set(Calendar.DAY_OF_MONTH, setDate)
+        val isOnScreen = month <= 1
 
         helper.nSetDate(calendarMonth)
         helper.nSetDisabledDates(mockDays)
 
-        modData.add(validator.getModel(calendarMonth))
+        calendarModel.add(MonthModel(month = todayModel.calendarMonthDate.toInt() - 1 , days =  validator.getModel(calendarMonth), isOnScreen))
 
         helper.nAddMonth(calendarMonth)
     }

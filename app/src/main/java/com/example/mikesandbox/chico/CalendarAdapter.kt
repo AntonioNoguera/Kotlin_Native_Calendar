@@ -11,10 +11,11 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.example.mikesandbox.CalendarHelper
 import com.example.mikesandbox.R
 
 class CalendarAdapter(private val context: Context, private val days: List<CalendarDateModel>, private val widthLinear: Int,
-                      private val onClick: (holder: CalendarViewHolder, actualItem: CalendarDateModel) -> Unit): RecyclerView.Adapter<CalendarAdapter.CalendarViewHolder>() {
+                      private val onClick: (holder: CalendarViewHolder, actualItem: CalendarDateModel, position: Int) -> Unit): RecyclerView.Adapter<CalendarAdapter.CalendarViewHolder>() {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CalendarViewHolder {
@@ -38,8 +39,13 @@ class CalendarAdapter(private val context: Context, private val days: List<Calen
 
         holder.calendarDay.text = day.calendarDay.takeIf { !day.today } ?: "hoy"
 
+        if (CalendarHelper.getCurrentDateSelected() != null && day.data != null) {
+            holder.calendarDate.isSelected =
+                CalendarHelper.isSameDay(CalendarHelper.getCurrentDateSelected()!!, day.data!!)
+        }
+
         holder.linear.setOnClickListener {
-            onClick(holder, day)
+            onClick(holder, day, position)
         }
 
         when(day.status){
@@ -54,10 +60,6 @@ class CalendarAdapter(private val context: Context, private val days: List<Calen
             else -> {
                 //for the headers
                 holder.calendarDate.setBackgroundResource(R.drawable.background_calendar_day)
-                holder.calendarDate.setTextColor(
-                    ContextCompat.getColorStateList(context,
-                        R.drawable.fontcolor_calendar_day
-                    ))
             }
         }
     }

@@ -3,9 +3,11 @@ package com.example.mikesandbox
 import android.content.Context
 import android.util.DisplayMetrics
 import android.view.WindowManager
+import com.example.mikesandbox.chico.CalendarAdapter
 import com.example.mikesandbox.chico.CalendarDateModel
-import java.time.*
+import com.example.mikesandbox.grande.CalendarDayAdapter
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 import kotlin.math.ceil
 
@@ -13,6 +15,10 @@ object CalendarHelper {
     private var calendarDates: CalendarDateModel = CalendarDateModel(Calendar.getInstance().time)
     private var disabledDates : ArrayList<Int> = arrayListOf<Int>()
     private var firstDayOfNextMonth = 0
+    private var currentDateSelected: Date? = null
+    private var lastSelectedMonthlyHolder: CalendarDayAdapter.ViewHolder? = null
+    private var lastSelectedWeeklyHolder: CalendarAdapter.CalendarViewHolder? = null
+    private var position: Int? = null
 
     // Envia mes y año actual, para saber la cantidad de dias del mes
     fun nSetDate(receivedDate: Calendar){
@@ -78,12 +84,37 @@ object CalendarHelper {
         return firstDayOfNextMonth
     }
 
+    fun setCurrentDateSelected(selectedDate: Date?) {
+        this.currentDateSelected = selectedDate
+    }
+
+    fun getCurrentDateSelected(): Date? {
+        return currentDateSelected
+    }
+
+    fun setPositionUpdateAdapter(position: Int) {
+        this.position = position
+    }
+    fun getPositionUpdateAdapter(): Int? {
+        return position
+    }
+
     /** Calendario Simplificado */
 
     fun isSameDay(calendar1: Calendar, calendar2: Calendar): Boolean {
         return calendar1.get(Calendar.YEAR) == calendar2.get(Calendar.YEAR) &&
                 calendar1.get(Calendar.MONTH) == calendar2.get(Calendar.MONTH) &&
                 calendar1.get(Calendar.DAY_OF_MONTH) == calendar2.get(Calendar.DAY_OF_MONTH)
+    }
+
+    fun isSameDay(calendar1: Date, calendar2: Date): Boolean {
+        val firstCalendar = Calendar.getInstance()
+        val secondCalendar = Calendar.getInstance()
+        firstCalendar.time = calendar1
+        secondCalendar.time = calendar2
+        return firstCalendar.get(Calendar.YEAR) == secondCalendar.get(Calendar.YEAR) &&
+                firstCalendar.get(Calendar.MONTH) == secondCalendar.get(Calendar.MONTH) &&
+                firstCalendar.get(Calendar.DAY_OF_MONTH) == secondCalendar.get(Calendar.DAY_OF_MONTH)
     }
 
     fun calculateWeeksCount(firstDayOfWeek: Int, maxDaysInMonth: Int): Int {
@@ -98,7 +129,7 @@ object CalendarHelper {
         return (screenWidth / 7).toInt() + 5
     }
 
-    fun getScreenWidth(context: Context): Float {
+    private fun getScreenWidth(context: Context): Float {
         val displayMetrics = DisplayMetrics()
         val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         windowManager.defaultDisplay.getMetrics(displayMetrics)

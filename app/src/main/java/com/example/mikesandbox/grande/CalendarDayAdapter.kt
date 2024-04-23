@@ -8,13 +8,15 @@ import android.widget.TextView
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.example.mikesandbox.CalendarHelper
 import com.example.mikesandbox.R
 import com.example.mikesandbox.chico.CalendarDateModel
+import java.util.Calendar
 
 class CalendarDayAdapter(private val context: Context, private val dataSet: ArrayList<CalendarDateModel>, private var selectedDay:Int? = null, private val listener: Listener) : RecyclerView.Adapter<CalendarDayAdapter.ViewHolder>() {
 
     interface Listener {
-        fun executeSelection(holder: ViewHolder, actualItem: CalendarDateModel)
+        fun executeSelection(holder: ViewHolder, actualItem: CalendarDateModel, position: Int)
         fun lastItemRendered()
     }
 
@@ -38,6 +40,11 @@ class CalendarDayAdapter(private val context: Context, private val dataSet: Arra
 
         holder.textView.text = if ( actualItem.data != null ) actualItem.calendarDate else actualItem.day
 
+        if (CalendarHelper.getCurrentDateSelected() != null && actualItem.data != null) {
+            holder.textView.isSelected =
+                CalendarHelper.isSameDay(CalendarHelper.getCurrentDateSelected()!!, actualItem.data!!)
+        }
+
         when(actualItem.status){
 
             CalendarDateModel.Status_Disabled -> {
@@ -56,19 +63,17 @@ class CalendarDayAdapter(private val context: Context, private val dataSet: Arra
 
             CalendarDateModel.Status_Next -> {
                 holder.textView.setBackgroundResource(R.drawable.background_calendar_day)
-                //holder.textView.setTextColor(ContextCompat.getColorStateList(context, R.drawable.fontcolor_calendar_day))
             }
 
             else -> {
                 //for the headers
                 holder.textView.setBackgroundResource(R.drawable.background_calendar_day)
-                //holder.textView.setTextColor(ContextCompat.getColorStateList(context, R.drawable.fontcolor_calendar_day))
             }
         }
 
         holder.dayContainer.setOnClickListener {
             if(actualItem.status == CalendarDateModel.Status_Active){
-                listener.executeSelection(holder, actualItem)
+                listener.executeSelection(holder, actualItem, position)
             }
         }
 

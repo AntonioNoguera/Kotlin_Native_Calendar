@@ -17,6 +17,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val viewModel: CalendarViewModel by viewModels()
     private lateinit var calendarViewPagerAdapter: CalendarViewPagerAdapter
+    private lateinit var calendarMonthAdapter: CalendarMonthAdapter
     private val helper = CalendarHelper
     private val validator = CalendarValidator(helper)
 
@@ -41,9 +42,12 @@ class MainActivity : AppCompatActivity() {
     /** Calendario Grande*/
     private fun setupRecyclerView() {
         binding.myRecyclerView.apply {
-            val adapter = CalendarMonthAdapter(this@MainActivity, calendarModel, listenerMonth = object : CalendarMonthAdapter.Listener {
-                override fun dateSelectedMonth(selectedDate: String) {
-                    Toast.makeText(this@MainActivity, selectedDate, Toast.LENGTH_SHORT).show()
+            calendarMonthAdapter = CalendarMonthAdapter(this@MainActivity, calendarModel, listenerMonth = object : CalendarMonthAdapter.Listener {
+                override fun dateSelectedMonth(selectedDate: CalendarDateModel) {
+                    helper.setCurrentDateSelected(selectedDate.data)
+                    var position = validator.weeksRemainingCalculator(selectedDate.calendarDate, selectedDate.calendarMonthDate, selectedDate.calendarYear)
+                    binding.viewPagerCalendar.currentItem = position
+                    calendarViewPagerAdapter.updateSelectedDate(position)
                 }
             })
 
@@ -55,7 +59,7 @@ class MainActivity : AppCompatActivity() {
                 isItemPrefetchEnabled = true
             }
             layoutManager = linearLayoutManager
-            this.adapter = adapter
+            this.adapter = calendarMonthAdapter
 
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
@@ -66,7 +70,7 @@ class MainActivity : AppCompatActivity() {
                         snapView?.let {
                             val pos = recyclerView.getChildAdapterPosition(it)
                             // pos es la posición del elemento que se muestra actualmente
-                            adapter.memberVisible(pos)
+                            calendarMonthAdapter.memberVisible(pos)
                         }
                     }
                 }
@@ -94,8 +98,11 @@ class MainActivity : AppCompatActivity() {
         val itemWidth = helper.calculateItemWidth(this@MainActivity)
 
         // initialize CalendarViewPagerAdapter
-        calendarViewPagerAdapter = CalendarViewPagerAdapter(this@MainActivity, arrayListOf(), itemWidth, onClick = { a, b ->
-
+        calendarViewPagerAdapter = CalendarViewPagerAdapter(this@MainActivity, arrayListOf(), itemWidth, onClick = { _, currentDay ->
+            helper.setCurrentDateSelected(currentDay.data)
+            var position = validator.monthsRemainingCalculator(currentDay.calendarMonthDate, currentDay.calendarYear)
+            calendarMonthAdapter.updateSelectedDate(position)
+            binding.myRecyclerView.smoothScrollToPosition(position)
         })
 
         binding.viewPagerCalendar.apply {
